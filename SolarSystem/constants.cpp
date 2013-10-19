@@ -27,3 +27,5 @@ double AU = 149597871000;       // [m]
 double Gconst = 6.67384e-11;    // [m^3/(kg s^2)]
 
 double year = 31556926;         // [s]
+
+double pi = 3.14;
