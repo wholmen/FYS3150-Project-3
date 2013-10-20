@@ -1,9 +1,10 @@
 #include <iostream>
-#include "constants.h"
 #include <armadillo>
 #include <cmath>
 #include <math.h>
 #include <fstream>
+#include "solver.h"
+#include "constants.h"
 
 using namespace std;
 using namespace arma;
@@ -44,10 +45,10 @@ int main()
         vec r = zeros<vec>(2); vec v = zeros<vec>(2); vec r2 = zeros<vec>(2);
         r << X(i) << Y(i); v << Vx(i) << Vy(i);
         double distance = Distance(r,r2);
-        RK4(&r,&v,distance,delta_t);
+        Solver earth_sun(&r,&v);
+        earth_sun.RK4(&r,&v,distance,delta_t);
         X(i+1) = r(0); Y(i+1) = r(1); Vx(i+1) = v(0); Vy(i+1) = v(1);
     }
-
 
 
     // Writing to file. This is working ok.
@@ -60,19 +61,6 @@ int main()
 
 }
 
-void RK4(vec *r, vec *v, double distance, double dt){
-    vec k1 = zeros<vec>(2); vec k2 = zeros<vec>(2); vec k3 = zeros<vec>(2); vec k4 = zeros<vec>(2);
-    k1 = dt * f(*r,           distance);
-    k2 = dt * f(*r + dt*k1/2, distance);
-    k3 = dt * f(*r + dt*k2/2, distance);
-    k4 = dt * f(*r + dt*k3,   distance);
-    *v = *v + (k1 + 2*k2 + 2*k3 + k4) / 6;
-    *r = *r + *v * dt;
-}
-
-vec f(vec r, double d){
-    return -4*pi*pi / (d*d*d) * r;
-}
 
 double Distance(vec r1, vec r2){
     vec R = r1-r2;
