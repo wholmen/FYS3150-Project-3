@@ -5,8 +5,12 @@ CONFIG -= qt
 LIBS += -larmadillo -lblas -llapack
 
 SOURCES += main.cpp \
-    constants.cpp
+    constants.cpp \
+    solver.cpp \
+    planet.cpp
 
 HEADERS += \
-    constants.h
+    constants.h \
+    solver.h \
+    planet.h
 

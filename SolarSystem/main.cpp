@@ -9,9 +9,8 @@ using namespace std;
 using namespace arma;
 
 void RK4(vec *r, vec *v, double distance, double dt);
-vec f(vec r, double distance);
-
-
+vec f(vec r, double dist);
+double Distance(vec r1, vec r2);
 
 /*
  1. Constants
@@ -30,22 +29,22 @@ vec f(vec r, double distance);
 
 int main()
 {
-    double Tfinal = 40; //years
-    double delta_t = 0.0001; //years
+    double Tfinal = 10; //years
+    double delta_t = 0.1; //years
     int N = Tfinal/delta_t;
 
     // Initializing earth-sun
     vec X = zeros<vec>(N); vec Vx = zeros<vec>(N);
     vec Y = zeros<vec>(N); vec Vy = zeros<vec>(N);
     X(0) = 1;   Vx(0) = 0; // Initial conditions for x-position and velocity
-    Y(0) = 0;   Vy(0) = 10; // Initial conditions for y-position and vecolity
+    Y(0) = 0;   Vy(0) = 2*pi; // Initial conditions for y-position and vecolity
 
 
     for (int i=0;i<N-1;i++){
-        vec r = zeros<vec>(2); vec v = zeros<vec>(2);
+        vec r = zeros<vec>(2); vec v = zeros<vec>(2); vec r2 = zeros<vec>(2);
         r << X(i) << Y(i); v << Vx(i) << Vy(i);
-        double distance = sqrt(r(0)*r(0) + r(1)*r(1));
-        RK4(&r,&v,distance, delta_t);
+        double distance = Distance(r,r2);
+        RK4(&r,&v,distance,delta_t);
         X(i+1) = r(0); Y(i+1) = r(1); Vx(i+1) = v(0); Vy(i+1) = v(1);
     }
 
@@ -63,26 +62,20 @@ int main()
 
 void RK4(vec *r, vec *v, double distance, double dt){
     vec k1 = zeros<vec>(2); vec k2 = zeros<vec>(2); vec k3 = zeros<vec>(2); vec k4 = zeros<vec>(2);
-
-    k1 = dt * f(*r, distance);
-    k2 = dt * f(*r + k1/2, distance);
-    k3 = dt * f(*r + k2/2, distance);
-    k4 = dt * f(*r + k3, distance);
+    k1 = dt * f(*r,           distance);
+    k2 = dt * f(*r + dt*k1/2, distance);
+    k3 = dt * f(*r + dt*k2/2, distance);
+    k4 = dt * f(*r + dt*k3,   distance);
     *v = *v + (k1 + 2*k2 + 2*k3 + k4) / 6;
-    *r = *v * dt;
+    *r = *r + *v * dt;
 }
 
-vec f(vec r, double distance){
-    return -4*pi*pi / (distance*distance*distance) * r;
+vec f(vec r, double d){
+    return -4*pi*pi / (d*d*d) * r;
 }
 
-
-/*
-vec f(vec r, vec Rsun, double m){ // r is the position [x,y]. m is not the moving planets mass, but the interracting object.
-    double R = Dist(DIST(Rsun,r));
-    return 4*3.14*3.14 / (R*R*R) * DIST(r,Rsun);
+double Distance(vec r1, vec r2){
+    vec R = r1-r2;
+    return sqrt(R(0)*R(0) + R(1)*R(1));
 }
 
-vec inline DIST(vec r1, vec r2){ return r2 - r1; } // Returning distance between two planets
-vec inline Dist(vec r){ return sqrt(r(0)*r(0) + r(1)*r(1)); }
-*/
