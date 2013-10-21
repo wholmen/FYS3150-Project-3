@@ -5,6 +5,7 @@
 #include <fstream>
 #include "solver.h"
 #include "constants.h"
+#include "planet.h"
 
 using namespace std;
 using namespace arma;
@@ -35,30 +36,39 @@ int main()
     int N = Tfinal/delta_t;
 
     // Initializing earth-sun
-    vec X = zeros<vec>(N); vec Vx = zeros<vec>(N);
-    vec Y = zeros<vec>(N); vec Vy = zeros<vec>(N);
-    X(0) = 1;   Vx(0) = 0; // Initial conditions for x-position and velocity
-    Y(0) = 0;   Vy(0) = 2*pi; // Initial conditions for y-position and vecolity
+    vec r = zeros<vec>(2); vec v = zeros<vec>(2); vec r2 = zeros<vec>(2);
 
-
+/*
     for (int i=0;i<N-1;i++){
-        vec r = zeros<vec>(2); vec v = zeros<vec>(2); vec r2 = zeros<vec>(2);
+        vec r = zeros<vec>(2); vec v = zeros<vec>(2);
         r << X(i) << Y(i); v << Vx(i) << Vy(i);
-        double distance = Distance(r,r2);
         Solver earth_sun(&r,&v);
         earth_sun.RK4(&r,&v,distance,delta_t);
         X(i+1) = r(0); Y(i+1) = r(1); Vx(i+1) = v(0); Vy(i+1) = v(1);
     }
+*/
+    Planet earth(Mearth, N);
+    earth.initial_condition(1,0,0,2*pi);
+    earth.position(0).print();
 
+    for (int i=0;i<N-1;i++){
+        r = earth.position(i); v = earth.velocity(i);
+        double distance = Distance(r,r2);
+        Solver earth_sun(&r,&v);
+        earth_sun.RK4(&r,&v,distance,delta_t);
+        earth.new_position(r(0),r(1),i); earth.new_velocity(v(0),v(1),i);
+    }
 
+/*
     // Writing to file. This is working ok.
     ofstream myfile;
     myfile.open("earth_sun.txt");
-    for (int i=0;i<N;i++){
-        myfile << X(i) << " " << Y(i) << " " << i*delta_t << endl;
+    for (int i=0;i<N-2;i++){
+        r = earth.position(i);
+        myfile << r(0) << " " << r(1) << " " << i*delta_t << endl;
     }
     myfile.close();
-
+*/
 }
 
 
