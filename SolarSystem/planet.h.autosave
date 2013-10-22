@@ -19,6 +19,7 @@ public:
     vec velocity(int i);
     void new_position(vec r, int i);
     void new_velocity(vec v, int i);
+    double MASS();
 };
 
 #endif // PLANET_H

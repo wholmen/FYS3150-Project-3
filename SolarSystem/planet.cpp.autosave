@@ -38,3 +38,7 @@ vec Planet::velocity(int i)
     v(0) = Vx(i); v(1) = Vy(i);
     return v;
 }
+
+double Planet::MASS(){
+    return mass;
+}

@@ -9,15 +9,14 @@ using namespace arma;
 
 class Solver
 {
-
-    double mass; double T;
-    vec *r, *v;
-    double pi = 3.14;
+    vec *r, *v, r2;
+    double pi = 3.14; double dt;
 
 public:
-    Solver(vec *r, vec *v);
-    void RK4(vec *r, vec *v, double distance, double dt);
+    Solver(vec *r, vec *v, vec r2, double dt);
+    void RK4();
     vec f(vec r, double dist);
+    double distance(vec r1, vec r2);
 };
 
 #endif // SOLVER_H
