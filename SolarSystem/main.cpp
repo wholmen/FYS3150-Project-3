@@ -10,82 +10,80 @@
 using namespace std;
 using namespace arma;
 
-void RK4(vec *r, vec *v, double distance, double dt);
-vec f(vec r, double dist);
-double Distance(vec r1, vec r2);
-
 int main()
 {
     double Tfinal = 10; //years
     double dt = 0.01; //years
-    int N = Tfinal/dt;
+    int N = Tfinal/dt; //iteration points
 
-    // Initializing earth-sun
-    vec r_earth = zeros<vec>(2); vec v_earth = zeros<vec>(2); vec r_sun = zeros<vec>(2); vec v_sun;
+    // Feeded planet-data into the planet class.
+    Planet **planets = new Planet*[10]; int p = 0;
+    //                      Mass                                               x   y vx vy
+    planets[p] = new Planet(Msun,     N); planets[p] -> initial_condition(0       ,0,0,0            ); p++;
+    planets[p] = new Planet(Mmercury, N); planets[p] -> initial_condition(Rmercury,0,0,2*pi*Rmercury); p++;
+    planets[p] = new Planet(Mvenus,   N); planets[p] -> initial_condition(Rvenus  ,0,0,2*pi*Rvenus  ); p++;
+    planets[p] = new Planet(Mearth,   N); planets[p] -> initial_condition(Rearth  ,0,0,2*pi*Rearth  ); p++;
+    planets[p] = new Planet(Mmars,    N); planets[p] -> initial_condition(Rmars   ,0,0,2*pi*Rmars   ); p++;
+    planets[p] = new Planet(Mjupiter, N); planets[p] -> initial_condition(Rjupiter,0,0,2*pi*Rjupiter); p++;
+    planets[p] = new Planet(Msaturn,  N); planets[p] -> initial_condition(Rsaturn ,0,0,2*pi*Rsaturn ); p++;
+    planets[p] = new Planet(Muranus,  N); planets[p] -> initial_condition(Ruranus ,0,0,2*pi*Ruranus ); p++;
+    planets[p] = new Planet(Mneptun,  N); planets[p] -> initial_condition(Rneptun ,0,0,2*pi*Rneptun ); p++;
+    planets[p] = new Planet(Mpluto,   N); planets[p] -> initial_condition(Rpluto  ,0,0,2*pi*Rpluto  ); p++;
 
-    Planet earth(Mearth, N); earth.initial_condition(1,0,0,2*pi);
-    Planet sun(Msun, N); sun.initial_condition(0,0,0,0);
+    // Creating one solver instance for each planet.
+    Solver **solvers = new Solver*[p];
+    for (int pl=0;pl<p;pl++){
+        solvers[p] = new Solver(Gconst,p);
+    }
 
-
-    Planet **planets = new Planet*[2];
-    int p = 0;
-    //                      Mass                                        x y vx vy
-    planets[p] = new Planet(Mearth, N); planets[p] -> initial_condition(1,0,0,2*pi); p++;
-    planets[p] = new Planet(Msun, N);   planets[p] -> initial_condition(0,0,0,2*pi); p++;
-    vec pos[p]; vec vel[p];
-    vec force_r[p]; double force_m[p];
-
+    // Starting the loop over each timestep i.
     for (int i=0; i<N-1; i++){
 
-        // Extracting all positions and velocities from class Planet.
+        // Retrieving planet-data from respective classes and inserting the info into matrixes.
+        mat pos(2,p); mat vel(2,p); vec mas(p);
         for (int j=0;j<p;j++){
-            pos[j] = planets[j] -> position(j); vel[j] = planets[j] -> velocity(j);
+            pos.col(j) += planets[j]->position(i);      //(2xP) - matrix with each column representing coordinates for respective planet.
+            vel.col(j) += planets[j]->velocity(i);      //(2xP) - matrix with each column representing velocity for respective planet.
+            mas(j) = planets[j] -> MASS();              //(1xP) - vector where each element is representing mass for respective planet.
         }
 
-        for (int j=0;j<p;j++){
-            //Creating acceleration function for planet: p
-            for (int e=o;e<p;e++){
-                if (e != j){
-                    force_r[e] = pos[e];
-                    force_m[e] = planets[e] -> MASS();
-                }}
-            Solver eval(&pos[j],&vel[j],force_e,force_m,dt); // must create a function creator inside Solver based on force_e and force_m. These together can make accelleration.
-            eval.RK4();
+        for (int pl=0;pl<p;pl++){                       // Looping over each planet.
+            vec r = zeros<vec>(2); r = pos.col(pl);     // Coordinates for planet pl.
+            vec v = zeros<vec>(2); v = vel.col(pl);     // Velocity for planet pl.
+            solvers[pl]->RK4(&r,&v,pos,mas,dt);         // RK4 calculates new position and velocity for planet pl.
 
-            // Must insert new pos[j] into planet-class!
-        }
+            planets[pl]->new_position(r,i); planets[pl]->new_velocity(v,i); // Feed new position/velocity into respective planet class.
+        } // end of planet loop
+
+    } // end of time loop
 
 
 
-    for (int i=0;i<N-1;i++){
-
-        r_earth = earth.position(i); v_earth = earth.velocity(i);
-        r_sun = sun.position(i); v_sun = sun.velocity(i);
-
-        Solver earth_sun(&r_earth,&v_earth,r_sun,dt);// Solver sun_earth(&r_sun,&v_sun);
-        earth_sun.RK4();
-        //sun_earth.RK4(&r_sun,&v_sun,Distance(r_earth,r_sun), dt);
-
-        earth.new_position(r_earth,i); earth.new_velocity(v_earth,i);
-        sun.new_position(r_sun,i); sun.new_velocity(v_sun, i);
-    }
+    // -----------------------------------------------------------------------
+    // ------------------------ Writing to files -----------------------------
+    // -----------------------------------------------------------------------
 
 
-    // Writing to file. This is working ok.
-    ofstream myfile; ofstream myfile2;
-    myfile.open("earth_sun.txt");
-    myfile2.open("sun_earth.txt");
+    ofstream myfile0; ofstream myfile1; ofstream myfile2; ofstream myfile3; ofstream myfile4;
+    ofstream myfile5; ofstream myfile6; ofstream myfile7; ofstream myfile8; ofstream myfile9;
+    myfile0.open("sun.txt"); myfile1.open("mercury.txt"); myfile2.open("venus.txt"); myfile3.open("earth.txt");
+    myfile4.open("mars.txt"); myfile5.open("jupiter.txt"); myfile6.open("saturn.txt"); myfile7.open("uranus.txt");
+    myfile8.open("neptun.txt"); myfile9.open("pluto.txt");
+
     for (int i=0;i<N;i++){
-        myfile << earth.position(i)(0) << " " << earth.position(i)(1) << " " << i*dt << endl;
-        myfile2 << sun.position(i)(0) << " " << sun.position(i)(1) << " " << i*dt << endl;
+        myfile0  << planets[0] ->position(i)(0) << " " << planets[0] ->position(i)(1) << " " << i*dt << endl;
+        myfile1  << planets[1] ->position(i)(0) << " " << planets[1] ->position(i)(1) << " " << i*dt << endl;
+        myfile2  << planets[2] ->position(i)(0) << " " << planets[2] ->position(i)(1) << " " << i*dt << endl;
+        myfile3  << planets[3] ->position(i)(0) << " " << planets[3] ->position(i)(1) << " " << i*dt << endl;
+        myfile4  << planets[4] ->position(i)(0) << " " << planets[4] ->position(i)(1) << " " << i*dt << endl;
+        myfile5  << planets[5] ->position(i)(0) << " " << planets[5] ->position(i)(1) << " " << i*dt << endl;
+        myfile6  << planets[6] ->position(i)(0) << " " << planets[6] ->position(i)(1) << " " << i*dt << endl;
+        myfile7  << planets[7] ->position(i)(0) << " " << planets[7] ->position(i)(1) << " " << i*dt << endl;
+        myfile8  << planets[8] ->position(i)(0) << " " << planets[8] ->position(i)(1) << " " << i*dt << endl;
+        myfile9  << planets[9] ->position(i)(0) << " " << planets[9] ->position(i)(1) << " " << i*dt << endl;
     }
-    myfile.close();
+    myfile0.close(); myfile1.close(); myfile2.close(); myfile3.close(); myfile4.close();
+    myfile5.close(); myfile6.close(); myfile7.close(); myfile8.close(); myfile9.close();
 
+    return 0;
 }
-
-
-double Distance(vec r1, vec r2){
-    vec R = r1-r2;
-    return sqrt(R(0)*R(0) + R(1)*R(1));
-}
-

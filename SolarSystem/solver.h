@@ -9,14 +9,14 @@ using namespace arma;
 
 class Solver
 {
-    vec *r, *v, r2;
-    double pi = 3.14; double dt;
+    double Gconst; int p;
 
 public:
-    Solver(vec *r, vec *v, vec r2, double dt);
-    void RK4();
-    vec f(vec r, double dist);
+    Solver(double GCONST, int P);
+    void RK4(vec *r, vec *v, mat pos, vec mas, double dt);
+    vec f(vec r, mat pos, vec mas);
     double distance(vec r1, vec r2);
+    vec vector(vec r1, vec r2);
 };
 
 #endif // SOLVER_H

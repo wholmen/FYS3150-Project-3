@@ -24,7 +24,7 @@ double Rneptun = 30.06;         // [AU]
 double Rpluto = 39.53;          // [AU]
 
 double AU = 149597871000;       // [m]
-double Gconst = 6.67384e-11;    // [m^3/(kg s^2)]
+double Gconst = 1.984e-29;      // [AU^3 kg^-1 y^-2]
 
 double year = 31556926;         // [s]
 

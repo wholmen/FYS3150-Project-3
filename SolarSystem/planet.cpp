@@ -1,8 +1,8 @@
 #include "planet.h"
 
-Planet::Planet(double mass, int N)
+Planet::Planet(double m, int n)
 {
-    N = N; mass = mass;
+    N = n; mass = m;
     Planet::initialize(N);
 }
 
@@ -37,4 +37,8 @@ vec Planet::velocity(int i)
 {
     v(0) = Vx(i); v(1) = Vy(i);
     return v;
+}
+
+double Planet::MASS(){
+    return mass;
 }

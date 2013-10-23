@@ -12,13 +12,14 @@ class Planet
     vec r, v, X, Y, Vx, Vy;
 
 public:
-    Planet(double mass, int N);
+    Planet(double m, int n);
     void initialize(int N);
     void initial_condition(double x, double y, double vx, double vy);
     vec position(int i);
     vec velocity(int i);
     void new_position(vec r, int i);
     void new_velocity(vec v, int i);
+    double MASS();
 };
 
 #endif // PLANET_H
