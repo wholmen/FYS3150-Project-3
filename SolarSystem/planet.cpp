@@ -9,7 +9,7 @@ Planet::Planet(double m, int n)
 void Planet::initialize(int N){
     X = zeros<vec>(N); Y = zeros<vec>(N);
     Vx = zeros<vec>(N); Vy = zeros<vec>(N);
-    r = zeros<vec>(2); v = zeros<vec>(2);
+    Ek = zeros<vec>(N); Ep = zeros<vec>(N); Etot = zeros<vec>(N);
 }
 
 void Planet::initial_condition(double x, double y, double vx, double vy)
@@ -29,12 +29,14 @@ void Planet::new_velocity(vec v, int i)
 
 vec Planet::position(int i)
 {
+    vec r = zeros<vec>(2);
     r(0) = X(i); r(1) = Y(i);
     return r;
 }
 
 vec Planet::velocity(int i)
 {
+    vec v = zeros<vec>(2);
     v(0) = Vx(i); v(1) = Vy(i);
     return v;
 }
@@ -42,3 +44,18 @@ vec Planet::velocity(int i)
 double Planet::MASS(){
     return mass;
 }
+
+void Planet::energy(double EP,int i){
+    Ep(i) = EP;
+    Ek(i) = (Vx(i)*Vx(i) + Vy(i)*Vy(i)) * 0.5 * mass;
+}
+
+void Planet::Energytot(){
+    Etot = Ek + Ep;
+}
+
+double Planet::Etotal(int i){
+    return Etot(i);
+}
+
+

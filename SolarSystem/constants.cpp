@@ -27,5 +27,6 @@ double AU = 149597871000;       // [m]
 double Gconst = 1.984e-29;      // [AU^3 kg^-1 y^-2]
 
 double year = 31556926;         // [s]
+double auy = year*1000/AU;      // converting factor between km/s to AU/year
 
 double pi = 3.14;
