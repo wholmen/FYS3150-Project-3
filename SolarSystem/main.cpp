@@ -19,7 +19,7 @@ int main()
     // Feeded planet-data into the planet class.
     Planet **planets = new Planet*[10]; int p = 0;
     //                      Mass                                               x        y      vx        vy
-    planets[p] = new Planet(Msun,     N); planets[p] -> initial_condition(0        ,0      ,0       ,0        ); p++;
+    planets[p] = new Planet(Msun,     N); planets[p] -> initial_condition(0        ,0      ,0       ,auy*13.1*Mjupiter/Msun); p++;
     planets[p] = new Planet(Mmercury, N); planets[p] -> initial_condition(-Rmercury,0      ,0       ,-auy*47.9); p++;
     planets[p] = new Planet(Mvenus,   N); planets[p] -> initial_condition(0        ,Rvenus ,auy*35.0,0        ); p++;
     planets[p] = new Planet(Mearth,   N); planets[p] -> initial_condition(-Rearth  ,0      ,0       ,auy*29.8 ); p++;
@@ -59,6 +59,12 @@ int main()
     } // end of time loop
 
     for (int pl=0;pl<p;pl++){planets[pl]->Energytot();} // Creating Etot inside each instance of planets.
+    vec L = zeros<vec>(N);
+    for (int i=0;i<N;i++){
+        double r = sqrt(planets[3]->position(i)(0)*planets[3]->position(i)(0) + planets[3]->position(i)(1)*planets[3]->position(i)(1));
+        double v = sqrt(planets[3]->velocity(i)(0)*planets[3]->velocity(i)(0) + planets[3]->velocity(i)(1)*planets[3]->velocity(i)(1));
+        L(i) = r*v;
+    }
 
 
     // -----------------------------------------------------------------------
@@ -75,7 +81,7 @@ int main()
         myfile0  << planets[0] ->position(i)(0) << " " << planets[0] ->position(i)(1) << " " << planets[0]->Etotal(i) << " " << i*dt << endl;
         myfile1  << planets[1] ->position(i)(0) << " " << planets[1] ->position(i)(1) << " " << planets[1]->Etotal(i) << " " << i*dt << endl;
         myfile2  << planets[2] ->position(i)(0) << " " << planets[2] ->position(i)(1) << " " << planets[2]->Etotal(i) << " " << i*dt << endl;
-        myfile3  << planets[3] ->position(i)(0) << " " << planets[3] ->position(i)(1) << " " << planets[3]->Etotal(i) << " " << i*dt << endl;
+        myfile3  << planets[3] ->position(i)(0) << " " << planets[3] ->position(i)(1) << " " << planets[3]->Etotal(i) << " " << i*dt << " " << L(i) << endl;
         myfile4  << planets[4] ->position(i)(0) << " " << planets[4] ->position(i)(1) << " " << planets[4]->Etotal(i) << " " << i*dt << endl;
         myfile5  << planets[5] ->position(i)(0) << " " << planets[5] ->position(i)(1) << " " << planets[5]->Etotal(i) << " " << i*dt << endl;
         myfile6  << planets[6] ->position(i)(0) << " " << planets[6] ->position(i)(1) << " " << planets[6]->Etotal(i) << " " << i*dt << endl;
